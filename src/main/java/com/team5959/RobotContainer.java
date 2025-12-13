@@ -7,12 +7,20 @@ package com.team5959;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.team5959.Constants.ControllerConstants;
 import com.team5959.subsystems.SwerveChassis;
 import com.team5959.commands.SwerveDrive;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class RobotContainer {
@@ -31,14 +39,29 @@ public class RobotContainer {
   @SuppressWarnings("unused")
   private final int joystickAxis = PS4Controller.Axis.kRightY.value;
 
+  //Pathplanner
+  public final SendableChooser<String> autoChooser;
+  private PathPlannerPath path;
+  public String autoChoose;
 
-  
+  //AUTONOMOUS
+  public static final String kForward = "Forward";
+  public static final String kRight = "Right";
+  public static final String kLeft = "Left";
+
   public RobotContainer() {
 
     //swerveSubs.setDefaultCommand(new S_DriveCommand(swerveSubs, () -> -.getLeftY(), () -> -xbox.getLeftX(), () -> -xbox.getRightX(), true));
     swerveChassis.setDefaultCommand(new SwerveDrive(swerveChassis, () -> control.getLeftY(), () -> control.getLeftX(), () -> control.getRightX(), true));
    
     // shooter.setDefaultCommand(new Sh_JoystickControlCommand(shooter, () -> xbox.getRawAxis(joystickAxis) * 0.9));
+
+    //AUTONOMOUS
+    autoChooser = new SendableChooser<>();
+    autoChooser.setDefaultOption("Forward", kForward);
+    autoChooser.addOption("Right", kRight);
+    autoChooser.addOption("Left", kLeft);
+    SmartDashboard.putData("Auto Selector", autoChooser);
 
     // Configure the trigger bindings
     configureBindings();
@@ -60,7 +83,27 @@ public class RobotContainer {
   }
   
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return null;
+
+    autoChoose = autoChooser.getSelected();
+
+    try{
+      switch (autoChoose){
+        case kForward:
+          path = PathPlannerPath.fromPathFile(autoChoose);
+          break;
+        case kRight:
+          path = PathPlannerPath.fromPathFile(autoChoose);
+          break;
+        case kLeft:
+          path = PathPlannerPath.fromPathFile(autoChoose);
+          break;
+        default:
+          break;
+      }
+      return AutoBuilder.followPath(path);
+    } catch (Exception e){
+      DriverStation.reportError("Error loading path: " + e.getMessage(), e.getStackTrace());
+      return Commands.none();
+    }
   }
 }
