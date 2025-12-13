@@ -149,7 +149,16 @@ public class Constants {
         public static final double MAX_SPEED = 2.5; //12.0 ft/s 
         public static final double MAX_ROTATION = MAX_SPEED / Math.hypot(TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0);
 
-        
+        //INTAKE CONSTANTS
+        public static class intakeCoralConstants{ 
+        //ID's
+        public static final int coralIntakeMotorRightID = 20;
+        public static final int coralIntakeMotorLeftID = 21;
+        //INVERTED
+        public static final boolean coralIntakeMotorRightInverted = false;
+        public static final boolean coralIntakeMotorLeftInverted = true;
+
+        }
       }
     }
     
