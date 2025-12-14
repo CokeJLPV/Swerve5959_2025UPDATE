@@ -12,8 +12,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
+import java.util.List;
+
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.team5959.Constants.ControllerConstants;
 import com.team5959.subsystems.SwerveChassis;
 import com.team5959.commands.SwerveDrive;
@@ -56,8 +60,10 @@ public class RobotContainer {
   private final int joystickAxis = PS4Controller.Axis.kRightY.value;
 
   //Pathplanner
-  public final SendableChooser<String> autoChooser;
-  private PathPlannerPath path;
+  public final SendableChooser<String> autoChooser; //Create sendable chooser for paths
+  public static SendableChooser<Command> autoCommandChooser; //Create sendable chooser for Autos
+  private PathPlannerPath path; //Call a pathplanner path
+  List<PathPlannerPath> pathGroup; //Call a group of pathplanner paths
   public String autoChoose;
 
   //AUTONOMOUS
@@ -73,12 +79,18 @@ public class RobotContainer {
    
     // shooter.setDefaultCommand(new Sh_JoystickControlCommand(shooter, () -> xbox.getRawAxis(joystickAxis) * 0.9));
 
-    //AUTONOMOUS
+    //AUTONOMOUS CHOOSER
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("Forward", kForward);
     autoChooser.addOption("Right", kRight);
     autoChooser.addOption("Left", kLeft);
     SmartDashboard.putData("Auto Selector", autoChooser);
+
+    autoCommandChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Command Selector", autoCommandChooser);
+
+    //REGISTER NAME AUTONOMOUS COMMANDS
+    NamedCommands.registerCommand("outCoral", runOutCoralIntake);
 
     // Configure the trigger bindings
     configureBindings();
@@ -103,6 +115,8 @@ public class RobotContainer {
   }
   
   public Command getAutonomousCommand() {
+
+    //return autoCommandChooser.getSelected();
 
     autoChoose = autoChooser.getSelected();
 
