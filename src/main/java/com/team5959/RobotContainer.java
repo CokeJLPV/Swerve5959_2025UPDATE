@@ -44,6 +44,9 @@ public class RobotContainer {
   private final runOutCoralIntake runOutCoralIntake = new runOutCoralIntake(intakeCoralSubsystem);
   private final stopCoralIntake stopCoralIntake = new stopCoralIntake(intakeCoralSubsystem);
 
+  //A command is created without creating the file, since a small action is being performed.
+  //Command inCoral = intakeCoralSubsystem.startEnd(() -> intakeCoralSubsystem.runInCoralIntake(), () -> intakeCoralSubsystem.stopCoralIntake());
+
   //CONTROLLERS  
   private final PS4Controller control = new PS4Controller(ControllerConstants.kDriverControllerPort);
   private final CommandPS4Controller CommandPS4Controller = new CommandPS4Controller(ControllerConstants.kDriverControllerPort);
@@ -116,8 +119,10 @@ public class RobotContainer {
   
   public Command getAutonomousCommand() {
 
+    //Descomentar esta linea si se quiere probar un auto y no un path
     //return autoCommandChooser.getSelected();
 
+    //Comentar estas lineas si se quiere probar un auto y no un path
     autoChoose = autoChooser.getSelected();
 
     try{
