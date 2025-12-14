@@ -61,15 +61,13 @@ public class RobotContainer {
 
   //Pathplanner
   public final SendableChooser<String> autoChooser; //Create sendable chooser for paths
-  public static SendableChooser<Command> autoCommandChooser; //Create sendable chooser for Autos
-  private PathPlannerPath path; //Call a pathplanner path
-  List<PathPlannerPath> pathGroup; //Call a group of pathplanner paths
   public String autoChoose;
+  PathPlannerPath choreoTraj;
 
-  //AUTONOMOUS
-  public static final String kForward = "Forward";
-  public static final String kRight = "Right";
-  public static final String kLeft = "Left";
+  //AUTONOMOUS 
+  public static final String ktrajectoryTest = "Square";
+  public static final String kcircle = "circle";
+
 
   public RobotContainer() {
 
@@ -81,14 +79,9 @@ public class RobotContainer {
 
     //AUTONOMOUS CHOOSER
     autoChooser = new SendableChooser<>();
-    autoChooser.setDefaultOption("Forward", kForward);
-    autoChooser.addOption("Right", kRight);
-    autoChooser.addOption("Left", kLeft);
+    autoChooser.setDefaultOption("Square", ktrajectoryTest);
+    autoChooser.addOption("circle", kcircle);
     SmartDashboard.putData("Auto Selector", autoChooser);
-
-    autoCommandChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Auto Command Selector", autoCommandChooser);
-
     //REGISTER NAME AUTONOMOUS COMMANDS
     NamedCommands.registerCommand("outCoral", runOutCoralIntake);
 
@@ -122,19 +115,16 @@ public class RobotContainer {
 
     try{
       switch (autoChoose){
-        case kForward:
-          path = PathPlannerPath.fromPathFile(autoChoose);
+        case ktrajectoryTest:
+          choreoTraj = PathPlannerPath.fromPathFile(autoChoose);
           break;
-        case kRight:
-          path = PathPlannerPath.fromPathFile(autoChoose);
-          break;
-        case kLeft:
-          path = PathPlannerPath.fromPathFile(autoChoose);
+        case kcircle:
+          choreoTraj = PathPlannerPath.fromPathFile(autoChoose);
           break;
         default:
           break;
       }
-      return AutoBuilder.followPath(path);
+      return AutoBuilder.followPath(choreoTraj);
     } catch (Exception e){
       DriverStation.reportError("Error loading path: " + e.getMessage(), e.getStackTrace());
       return Commands.none();
