@@ -123,6 +123,7 @@ public class RobotContainer {
     //return autoCommandChooser.getSelected();
 
     //Comentar estas lineas si se quiere probar un auto y no un path
+    //de aqui
     autoChoose = autoChooser.getSelected();
 
     try{
@@ -144,5 +145,6 @@ public class RobotContainer {
       DriverStation.reportError("Error loading path: " + e.getMessage(), e.getStackTrace());
       return Commands.none();
     }
+    //hasta aqui
   }
 }
