@@ -184,6 +184,8 @@ public class RobotContainer {
 
     //idea fugas, cuando se selecione el autonomo, llamar un comando que reinicie la posicion en la 
     //que esta el robot, new InstantCommand(()->swerveChassis.resetOdometry(new Pose2d(X de patplanner, Y de pathplanner,navx.getRotation2d() ))
+    //Ya vi, si usas un path no se reinicia la odometria osea X,Y y theta
+    //Pero si usas un auto hecho por comandos si se reinicia
 
 
     
