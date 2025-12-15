@@ -11,7 +11,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.team5959.Constants.SwerveConstants.intakeCoralConstants;
+import com.team5959.Constants.intakeCoralConstants;
 
 public class intakeCoralSubsystem extends SubsystemBase {
 
