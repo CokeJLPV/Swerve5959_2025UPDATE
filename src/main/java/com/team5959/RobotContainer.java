@@ -37,7 +37,7 @@ import com.team5959.commands.stopCoralIntake;
 
 public class RobotContainer {
   //SUBSYSTEMS 
-  private final SwerveChassis swerveChassis = new SwerveChassis(); 
+  private final SwerveChassis swerveChassis; 
   private final intakeCoralSubsystem intakeCoralSubsystem = new intakeCoralSubsystem();
   private final armIntakeAlgaeSubsystem armIntakeAlgaeSubsystem = new armIntakeAlgaeSubsystem();
   private final elevatorSubsystem elevatorSubsystem = new elevatorSubsystem();
@@ -105,6 +105,15 @@ public class RobotContainer {
 
   public RobotContainer() {
 
+    //REGISTER NAME AUTONOMOUS COMMANDS
+    NamedCommands.registerCommand("outCoral", runOutCoralIntake.withTimeout(2));
+    NamedCommands.registerCommand("algaeDown", inOrOutPositionCommand);
+    NamedCommands.registerCommand("getAlgae", runInAlgaeCommand);
+    NamedCommands.registerCommand("algaeUp", inOrOutPositionCommand);
+    
+
+    swerveChassis = new SwerveChassis();
+
     //swerveSubs.setDefaultCommand(new S_DriveCommand(swerveSubs, () -> -.getLeftY(), () -> -xbox.getLeftX(), () -> -xbox.getRightX(), true));
     swerveChassis.setDefaultCommand(new SwerveDrive(swerveChassis, () -> control.getLeftY(), () -> control.getLeftX(), () -> control.getRightX(), true));
     intakeCoralSubsystem.setDefaultCommand(stopCoralIntake);
@@ -116,9 +125,6 @@ public class RobotContainer {
 
     autoCommandChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Command Selector", autoCommandChooser);
-
-    //REGISTER NAME AUTONOMOUS COMMANDS
-    NamedCommands.registerCommand("outCoral", miniArmDropPositionCommand);
 
     // Configure the trigger bindings
     configureBindings();

@@ -7,32 +7,44 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Leave"
+            "pathName": "getAlage"
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "outCoral"
-          }
-        },
-        {
-          "type": "race",
+          "type": "sequential",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "outCoral"
+                  "name": "algaeDown"
                 }
               },
               {
-                "type": "wait",
+                "type": "named",
                 "data": {
-                  "waitTime": 3.0
+                  "name": "getAlgae"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "algaeUp"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "outOfRobot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "getAlgae"
           }
         }
       ]
