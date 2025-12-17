@@ -83,8 +83,8 @@ public class SwerveChassis extends SubsystemBase {
         this::getRobotRelativeSpeeds,
         (speeds, feedforwards) -> driveRobotRelative(speeds),
         new PPHolonomicDriveController(
-            new PIDConstants(0.5, 0.000001, 0.001), // Translation PID X/Y
-            new PIDConstants(1, 0.0001, 0.1)), // Rotation PID Theta
+            new PIDConstants(010, 0.001, 1.5), // Translation PID X/Y
+            new PIDConstants(5, 0.1, 0.01)), // Rotation PID Theta
         config,
         this::getAlliance,
         this);
