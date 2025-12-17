@@ -106,6 +106,11 @@ public class RobotContainer {
   public void periodic(){
     
   }
+
+  public PathPlannerPath getChoreoTraj(String autoChoose){
+    choreoTraj = PathPlannerPath.fromChoreoTrajectory(autoChoose);
+    Pose2d initialPose = choreoTraj.
+  }
   
   public Command getAutonomousCommand() {
 
@@ -116,10 +121,10 @@ public class RobotContainer {
     try{
       switch (autoChoose){
         case ktrajectoryTest:
-          choreoTraj = PathPlannerPath.fromPathFile(autoChoose);
+          choreoTraj = PathPlannerPath.fromChoreoTrajectory(autoChoose);
           break;
         case kcircle:
-          choreoTraj = PathPlannerPath.fromPathFile(autoChoose);
+          choreoTraj = PathPlannerPath.fromChoreoTrajectory(autoChoose);
           break;
         default:
           break;
