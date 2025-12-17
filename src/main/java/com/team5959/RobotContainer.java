@@ -93,7 +93,7 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Command Selector", autoCommandChooser);
 
     //REGISTER NAME AUTONOMOUS COMMANDS
-    NamedCommands.registerCommand("outCoral", runOutCoralIntake.withTimeout(2));
+    NamedCommands.registerCommand("outCoral", runOutCoralIntake.withTimeout(3));
 
     // Configure the trigger bindings
     configureBindings();
