@@ -83,18 +83,18 @@ public class SwerveChassis extends SubsystemBase {
         this::getRobotRelativeSpeeds,
         (speeds, feedforwards) -> driveRobotRelative(speeds),
         new PPHolonomicDriveController(
-            new PIDConstants(0.5, 0.000001, 0.001), // Translation PID X/Y
-            new PIDConstants(1, 0.0001, 0.1)), // Rotation PID Theta
+            new PIDConstants(2.9, 0, 0), // Translation PID X/Y kp:0.5 ki:0.000001 kd:0.001
+            new PIDConstants(1.1, 0, 0)), // Rotation PID Theta ki:0.0001 kd:0.1
         config,
         this::getAlliance,
         this);
-
+/* 
     PathPlannerLogging.setLogActivePathCallback((poses) -> {field.getObject("path").setPoses(poses);});
 
     PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {field.setRobotPose(pose);});
 
     PathPlannerLogging.setLogTargetPoseCallback((pose) -> {field.getObject("target").setPose(pose);});
-
+*/
     SmartDashboard.putData("fieldTestPosition", field);
 
   }
