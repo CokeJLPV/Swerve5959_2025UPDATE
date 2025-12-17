@@ -45,7 +45,7 @@ public class RobotContainer {
   private final stopCoralIntake stopCoralIntake = new stopCoralIntake(intakeCoralSubsystem);
 
   //A command is created without creating the file, since a small action is being performed.
-  //Command inCoral = intakeCoralSubsystem.startEnd(() -> intakeCoralSubsystem.runInCoralIntake(), () -> intakeCoralSubsystem.stopCoralIntake());
+  Command inCoral = intakeCoralSubsystem.startEnd(() -> intakeCoralSubsystem.runInCoralIntake(), () -> intakeCoralSubsystem.stopCoralIntake());
 
   //CONTROLLERS  
   private final PS4Controller control = new PS4Controller(ControllerConstants.kDriverControllerPort);
