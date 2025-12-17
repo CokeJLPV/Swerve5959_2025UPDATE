@@ -7,7 +7,6 @@ package com.team5959;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -18,12 +17,10 @@ import java.util.List;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.team5959.Constants.ControllerConstants;
 import com.team5959.subsystems.SwerveChassis;
 import com.team5959.commands.SwerveDrive;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -104,16 +101,9 @@ public class RobotContainer {
   private final int joystickAxis = PS4Controller.Axis.kRightY.value;
 
   //Pathplanner
-  public final SendableChooser<String> autoChooser; //Create sendable chooser for paths
   public static SendableChooser<Command> autoCommandChooser; //Create sendable chooser for Autos
-  private PathPlannerPath path; //Call a pathplanner path
   List<PathPlannerPath> pathGroup; //Call a group of pathplanner paths
   public String autoChoose;
-
-  //AUTONOMOUS
-  public static final String kForward = "Forward";
-  public static final String kRight = "Right";
-  public static final String kLeft = "Left";
 
   public RobotContainer() {
 
@@ -125,13 +115,6 @@ public class RobotContainer {
     miniArmSubsystem.setDefaultCommand(holdMiniArmPositionCommand);
    
     // shooter.setDefaultCommand(new Sh_JoystickControlCommand(shooter, () -> xbox.getRawAxis(joystickAxis) * 0.9));
-
-    //AUTONOMOUS CHOOSER
-    autoChooser = new SendableChooser<>();
-    autoChooser.setDefaultOption("Forward", kForward);
-    autoChooser.addOption("Right", kRight);
-    autoChooser.addOption("Left", kLeft);
-    SmartDashboard.putData("Auto Selector", autoChooser);
 
     autoCommandChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Command Selector", autoCommandChooser);
@@ -167,13 +150,6 @@ public class RobotContainer {
     CommandGenericController.button(8).whileTrue(runOutCoralIntake);//LT
     CommandGenericController.button(7).whileTrue(runInCoralIntake);//RT
 
-    /*(boton 8 o boton 7) estan sueltos y es false negate lo vuelve true, entonces onTrue se activa y se para la intake
-    R2	L2	R2 OR L2	      NOT (R2 OR L2)	  ¿Se ejecuta stopCoralIntake?
-    P	  UP	TRUE	          FALSE	            NO (El motor está corriendo)
-    UP	P	  TRUE	          FALSE            	NO (El motor está corriendo)
-    P	  P	  TRUE	          FALSE	            NO (El motor está corriendo)
-    UP	UP	FALSE	          TRUE	            SÍ (Parada)
-    */
     //No estoy seguro si esto funciona bien, probarlo
     //CommandGenericController.button(8).or(CommandGenericController.button(7)).negate().onTrue(stopCoralIntake);
 
@@ -181,14 +157,6 @@ public class RobotContainer {
     CommandGenericController.button(4).onTrue(l2ElevatorPositionCommand); //Y
     CommandGenericController.button(2).onTrue(l3ElevatorPositionCommand); //B
     CommandGenericController.button(1).onTrue(startingElevatorPositionCommand); //A
-
-    //idea fugas, cuando se selecione el autonomo, llamar un comando que reinicie la posicion en la 
-    //que esta el robot, new InstantCommand(()->swerveChassis.resetOdometry(new Pose2d(X de patplanner, Y de pathplanner,navx.getRotation2d() ))
-    //Ya vi, si usas un path no se reinicia la odometria osea X,Y y theta
-    //Pero si usas un auto hecho por comandos si se reinicia
-
-
-    
   }
   
   public void periodic(){
@@ -196,34 +164,6 @@ public class RobotContainer {
   }
   
   public Command getAutonomousCommand() {
-
-    //Descomentar esta linea si se quiere probar un auto y no un path
     return autoCommandChooser.getSelected();
-
-    //Comentar estas lineas si se quiere probar un auto y no un path
-    /* 
-    autoChoose = autoChooser.getSelected();
-
-    try{
-      switch (autoChoose){
-        case kForward:
-          path = PathPlannerPath.fromPathFile(autoChoose);
-          break;
-        case kRight:
-          path = PathPlannerPath.fromPathFile(autoChoose);
-          break;
-        case kLeft:
-          path = PathPlannerPath.fromPathFile(autoChoose);
-          break;
-        default:
-          break;
-      }
-      return AutoBuilder.followPath(path);
-    } catch (Exception e){
-      DriverStation.reportError("Error loading path: " + e.getMessage(), e.getStackTrace());
-      return Commands.none();
-    }
-
-    */
   }
 }
