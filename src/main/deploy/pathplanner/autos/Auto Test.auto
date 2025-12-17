@@ -7,19 +7,32 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Forward"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "pathName": "circle"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "outCoral"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "outCoral"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
           }
         }
       ]

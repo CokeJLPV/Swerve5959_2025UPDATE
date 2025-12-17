@@ -9,6 +9,31 @@
           "data": {
             "pathName": "Leave"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "outCoral"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "outCoral"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
+          }
         }
       ]
     }
