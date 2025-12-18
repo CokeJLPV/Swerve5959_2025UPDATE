@@ -105,7 +105,7 @@ public class RobotContainer {
   }
 
   private Command scoreReffCommandSequence(){
-    return Commands.sequence(getInOrOutPositionCommand(),getRunOutAlgaeCommand().withTimeout(2),getInOrOutPositionCommand());
+    return Commands.sequence(runInCoralIntakeCommand().withTimeout(1.5));
   }
 
   // Creacion de objetos de CONTROLES
