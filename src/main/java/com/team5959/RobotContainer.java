@@ -189,7 +189,13 @@ public class RobotContainer {
   
   public Command getAutonomousCommand() {
     
-    return AutoBuilder.followPath(PathPlannerPath.fromChoreoTrajectory("DriverStation1"));
+    try{
+      PathPlannerPath choreoTraj = PathPlannerPath.fromChoreoTrajectory(autoChoose);
+      return AutoBuilder.followPath(choreoTraj);
+    } catch (Exception e){
+      DriverStation.reportError("Error loading path: " + e.getMessage(), e.getStackTrace());
+      return Commands.none();
+    }
     return autoCommandChooser.getSelected();
   }
 }
