@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "getAlage"
+            "pathName": "algaeIn"
           }
         },
         {
@@ -38,13 +38,20 @@
         {
           "type": "path",
           "data": {
-            "pathName": "outOfRobot"
+            "pathName": "algaeOut"
           }
         },
         {
-          "type": "named",
+          "type": "sequential",
           "data": {
-            "name": "getAlgae"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "getAlgae"
+                }
+              }
+            ]
           }
         }
       ]

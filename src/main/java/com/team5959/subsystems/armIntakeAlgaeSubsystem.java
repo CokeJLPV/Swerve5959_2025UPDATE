@@ -61,7 +61,9 @@ public class armIntakeAlgaeSubsystem extends SubsystemBase {
     }
 
     public double currentArmPosition() {
-        return (int)armAbsoluteEncoder.get() * 360;
+        double multiplicationOne = armAbsoluteEncoder.get() * 360;
+        double multiplicationTwo = (int)multiplicationOne;
+        return multiplicationTwo;
 
     }
 

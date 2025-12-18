@@ -7,10 +7,12 @@ package com.team5959;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import java.util.List;
 
@@ -50,40 +52,54 @@ public class RobotContainer {
 
   //COMMANDS without files
   //Algae Arm Intake Commands
-  Command runInAlgaeCommand = armIntakeAlgaeSubsystem.startEnd(() -> armIntakeAlgaeSubsystem.setAlgaeIntakeSpeed(0.7), () -> armIntakeAlgaeSubsystem.stopAlgaeIntake());
-  Command runOutAlgaeCommand = armIntakeAlgaeSubsystem.startEnd(() -> armIntakeAlgaeSubsystem.setAlgaeIntakeSpeed(-0.5), () -> armIntakeAlgaeSubsystem.stopAlgaeIntake());
+  private Command getRunInAlgaeCommand() {
+    return armIntakeAlgaeSubsystem.startEnd(() -> armIntakeAlgaeSubsystem.setAlgaeIntakeSpeed(0.7), armIntakeAlgaeSubsystem::stopAlgaeIntake);
+  }
+
+  private Command getRunOutAlgaeCommand() {
+    return armIntakeAlgaeSubsystem.startEnd(() -> armIntakeAlgaeSubsystem.setAlgaeIntakeSpeed(-0.5), armIntakeAlgaeSubsystem::stopAlgaeIntake);
+  }
 
   //Algae Arm Position Commands
-  Command moveToAlgaeArmPostionPIDCommand = armIntakeAlgaeSubsystem.run(() -> armIntakeAlgaeSubsystem.runPIDArmTarget()).until(() -> armIntakeAlgaeSubsystem.isAtTargetPosition());
-  Command holdAlgaeArmPositionPIDCommand = armIntakeAlgaeSubsystem.run(() -> armIntakeAlgaeSubsystem.runPIDArmTarget());
+  private Command getArmPIDMovement() {
+    return armIntakeAlgaeSubsystem.run(armIntakeAlgaeSubsystem::runPIDArmTarget).until(armIntakeAlgaeSubsystem::isAtTargetPosition);
+  }
 
-  Command inOrOutPositionCommand = armIntakeAlgaeSubsystem.runOnce(() -> armIntakeAlgaeSubsystem.inorOutPositionSwitch()).andThen(moveToAlgaeArmPostionPIDCommand);
-  Command inPerimeterPositionCommand = armIntakeAlgaeSubsystem.runOnce(() -> armIntakeAlgaeSubsystem.moveToInPerimeterPosition()).andThen(moveToAlgaeArmPostionPIDCommand);
-  Command holdAlgaeArmPositionCommand = armIntakeAlgaeSubsystem.runOnce(() -> armIntakeAlgaeSubsystem.currentToTargetPosition()).andThen(holdAlgaeArmPositionPIDCommand);
+  private Command getInOrOutPositionCommand() {
+    return Commands.sequence(armIntakeAlgaeSubsystem.runOnce(armIntakeAlgaeSubsystem::inorOutPositionSwitch), getArmPIDMovement());
+  }
+
+  private Command getInPerimeterPositionCommand() {
+    return Commands.sequence(armIntakeAlgaeSubsystem.runOnce(armIntakeAlgaeSubsystem::moveToInPerimeterPosition), getArmPIDMovement());
+  }
+
+  private Command getHoldAlgaeArmPositionCommand() {
+    return Commands.sequence(armIntakeAlgaeSubsystem.runOnce(armIntakeAlgaeSubsystem::currentToTargetPosition), armIntakeAlgaeSubsystem.run(armIntakeAlgaeSubsystem::runPIDArmTarget));
+  }
 
   //Elevator Commands
-  Command moveToElevatorPositionPIDCommand = elevatorSubsystem.run(() -> elevatorSubsystem.runPIDElevatorTarget()).until(() -> elevatorSubsystem.atTargetPosition());
-  Command holdElevatorPositionPIDCommand = elevatorSubsystem.run(() -> elevatorSubsystem.runPIDElevatorTarget());
+  private Command getElevatorPIDMovement() {
+    return elevatorSubsystem.run(elevatorSubsystem::runPIDElevatorTarget).until(elevatorSubsystem::atTargetPosition);
+  }
 
-  Command holdElevatorPositionCommand = elevatorSubsystem.runOnce(() -> elevatorSubsystem.CurrentToTargetPosition()).andThen(holdElevatorPositionPIDCommand);
-  Command startingElevatorPositionCommand = elevatorSubsystem.runOnce(()-> elevatorSubsystem.moveToStartingPosition()).andThen(moveToElevatorPositionPIDCommand);
-  Command l1ElevatorPositionCommand = elevatorSubsystem.runOnce(()-> elevatorSubsystem.moveToL1Position()).andThen(moveToElevatorPositionPIDCommand);
-  Command l2ElevatorPositionCommand = elevatorSubsystem.runOnce(()-> elevatorSubsystem.moveToL2Position()).andThen(moveToElevatorPositionPIDCommand);
-  Command l3ElevatorPositionCommand = elevatorSubsystem.runOnce(()-> elevatorSubsystem.moveToL3Position()).andThen(moveToElevatorPositionPIDCommand);
-  Command upElevatorCommand = elevatorSubsystem.run(() -> elevatorSubsystem.elevatorUpManualMode());
-  Command downElevatorCommand = elevatorSubsystem.run(() -> elevatorSubsystem.elevatorDownManualMode());
+  private Command getHoldElevatorPositionCommand() {
+    return Commands.sequence(elevatorSubsystem.runOnce(elevatorSubsystem::CurrentToTargetPosition), elevatorSubsystem.run(elevatorSubsystem::runPIDElevatorTarget));
+  }
+
+  private Command getElevatorMoveCommand(Runnable positionSetter) {
+    return Commands.sequence(elevatorSubsystem.runOnce(positionSetter), getElevatorPIDMovement());
+  }
 
   //Mini Arm Commands
-  Command moveToMiniArmPositionPIDCommand = miniArmSubsystem.run(() -> miniArmSubsystem.runPIDMiniArmTarget()).until(() -> miniArmSubsystem.atTargetPosition());
-  Command holdMiniArmPositionPIDCommand = miniArmSubsystem.run(() -> miniArmSubsystem.runPIDMiniArmTarget());
+  private Command getMiniArmPIDMovement() {
+    return miniArmSubsystem.run(miniArmSubsystem::runPIDMiniArmTarget).until(miniArmSubsystem::atTargetPosition);
+  }
 
-  Command holdMiniArmPositionCommand = miniArmSubsystem.runOnce(() -> miniArmSubsystem.currentToTargetPosition()).andThen(holdMiniArmPositionPIDCommand);
-  Command downOrStartingPositionSwitch = miniArmSubsystem.runOnce(() -> miniArmSubsystem.downOrStartingPositionSwitch()).andThen(moveToMiniArmPositionPIDCommand);
-  Command miniArmDropPositionCommand = miniArmSubsystem.runOnce(() -> miniArmSubsystem.moveToDropAlgaePosition()).andThen(moveToMiniArmPositionPIDCommand);
+  private Command getHoldMiniArmPositionCommand() {
+    return Commands.sequence(miniArmSubsystem.runOnce(miniArmSubsystem::currentToTargetPosition), miniArmSubsystem.run(miniArmSubsystem::runPIDMiniArmTarget));
+  }
+
  
-  //A command is created without creating the file, since a small action is being performed.
-  //Command inCoral = intakeCoralSubsystem.startEnd(() -> intakeCoralSubsystem.runInCoralIntake(), () -> intakeCoralSubsystem.stopCoralIntake());
-
   //CONTROLLERS  
   private final PS4Controller control = new PS4Controller(ControllerConstants.kDriverControllerPort);
   private final CommandPS4Controller CommandPS4Controller = new CommandPS4Controller(ControllerConstants.kDriverControllerPort);
@@ -107,9 +123,9 @@ public class RobotContainer {
 
     //REGISTER NAME AUTONOMOUS COMMANDS
     NamedCommands.registerCommand("outCoral", runOutCoralIntake.withTimeout(2));
-    NamedCommands.registerCommand("algaeDown", inOrOutPositionCommand);
-    NamedCommands.registerCommand("getAlgae", runInAlgaeCommand);
-    NamedCommands.registerCommand("algaeUp", inOrOutPositionCommand);
+    NamedCommands.registerCommand("algaeDown", getInOrOutPositionCommand());
+    NamedCommands.registerCommand("getAlgae", getRunInAlgaeCommand().withTimeout(2));
+    NamedCommands.registerCommand("algaeUp", getInOrOutPositionCommand());
     
 
     swerveChassis = new SwerveChassis();
@@ -117,9 +133,9 @@ public class RobotContainer {
     //swerveSubs.setDefaultCommand(new S_DriveCommand(swerveSubs, () -> -.getLeftY(), () -> -xbox.getLeftX(), () -> -xbox.getRightX(), true));
     swerveChassis.setDefaultCommand(new SwerveDrive(swerveChassis, () -> control.getLeftY(), () -> control.getLeftX(), () -> control.getRightX(), true));
     intakeCoralSubsystem.setDefaultCommand(stopCoralIntake);
-    armIntakeAlgaeSubsystem.setDefaultCommand(holdAlgaeArmPositionCommand);
-    elevatorSubsystem.setDefaultCommand(holdElevatorPositionCommand);
-    miniArmSubsystem.setDefaultCommand(holdMiniArmPositionCommand);
+    armIntakeAlgaeSubsystem.setDefaultCommand(getHoldAlgaeArmPositionCommand());
+    elevatorSubsystem.setDefaultCommand(getHoldElevatorPositionCommand());
+    miniArmSubsystem.setDefaultCommand(getHoldMiniArmPositionCommand());
    
     // shooter.setDefaultCommand(new Sh_JoystickControlCommand(shooter, () -> xbox.getRawAxis(joystickAxis) * 0.9));
 
@@ -139,28 +155,28 @@ public class RobotContainer {
     resetPosButton.onTrue(new InstantCommand(() -> swerveChassis.resetOdometry(new Pose2d(0, 0, new Rotation2d(0)))));
   //  limelightStrafeAlign.onTrue(new LimelightRotationAlignCommand(swerveSubs, () -> -xbox.getLeftY(), () -> -xbox.getLeftX(), () -> -xbox.getRightX()));
 
-    CommandPS4Controller.R2().whileTrue(runInAlgaeCommand);
-    CommandPS4Controller.L2().whileTrue(runOutAlgaeCommand);
+    CommandPS4Controller.R2().whileTrue(getRunInAlgaeCommand());
+    CommandPS4Controller.L2().whileTrue(getRunOutAlgaeCommand());
 
-    CommandPS4Controller.triangle().onTrue(downOrStartingPositionSwitch); //Triangle
-    CommandPS4Controller.circle().onTrue(miniArmDropPositionCommand); //Circle
+    CommandPS4Controller.triangle().onTrue(Commands.sequence(miniArmSubsystem.runOnce(miniArmSubsystem::downOrStartingPositionSwitch), getMiniArmPIDMovement())); //Triangle
+    CommandPS4Controller.circle().onTrue(Commands.sequence(miniArmSubsystem.runOnce(miniArmSubsystem::moveToDropAlgaePosition), getMiniArmPIDMovement())); //Circle
 
-    CommandPS4Controller.square().onTrue(inOrOutPositionCommand); //Square
-    CommandPS4Controller.cross().onTrue(inPerimeterPositionCommand); //Cross
+    CommandPS4Controller.square().onTrue(getInOrOutPositionCommand()); //Square
+    CommandPS4Controller.cross().onTrue(getInPerimeterPositionCommand()); //Cross
 
-    CommandGenericController.button(5).whileTrue(upElevatorCommand); //LB
-    CommandGenericController.button(6).whileTrue(downElevatorCommand); //RB
+    CommandGenericController.button(5).whileTrue(elevatorSubsystem.run(elevatorSubsystem::elevatorUpManualMode)); //LB
+    CommandGenericController.button(6).whileTrue(elevatorSubsystem.run(elevatorSubsystem::elevatorDownManualMode)); //RB
 
     CommandGenericController.button(8).whileTrue(runOutCoralIntake);//LT
     CommandGenericController.button(7).whileTrue(runInCoralIntake);//RT
 
-    //No estoy seguro si esto funciona bien, probarlo
-    //CommandGenericController.button(8).or(CommandGenericController.button(7)).negate().onTrue(stopCoralIntake);
+    Trigger coralButtonsPressed = CommandGenericController.button(8).or(CommandGenericController.button(7));
+    coralButtonsPressed.negate().onTrue(stopCoralIntake);
 
-    CommandGenericController.button(3).onTrue(l1ElevatorPositionCommand); //X
-    CommandGenericController.button(4).onTrue(l2ElevatorPositionCommand); //Y
-    CommandGenericController.button(2).onTrue(l3ElevatorPositionCommand); //B
-    CommandGenericController.button(1).onTrue(startingElevatorPositionCommand); //A
+    CommandGenericController.button(3).onTrue(getElevatorMoveCommand(elevatorSubsystem::moveToL1Position)); //X
+    CommandGenericController.button(4).onTrue(getElevatorMoveCommand(elevatorSubsystem::moveToL2Position)); //Y
+    CommandGenericController.button(2).onTrue(getElevatorMoveCommand(elevatorSubsystem::moveToL3Position)); //B
+    CommandGenericController.button(1).onTrue(getElevatorMoveCommand(elevatorSubsystem::moveToStartingPosition)); //A
   }
   
   public void periodic(){
