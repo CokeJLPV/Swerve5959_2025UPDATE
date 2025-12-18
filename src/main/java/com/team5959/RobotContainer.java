@@ -188,7 +188,8 @@ public class RobotContainer {
   }
   
   public Command getAutonomousCommand() {
-    //DriverStation1
+    
+    return AutoBuilder.followPath(PathPlannerPath.fromChoreoTrajectory("DriverStation1"));
     return autoCommandChooser.getSelected();
   }
 }
