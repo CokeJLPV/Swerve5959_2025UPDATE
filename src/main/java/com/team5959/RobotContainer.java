@@ -23,6 +23,7 @@ import com.team5959.Constants.ControllerConstants;
 import com.team5959.subsystems.SwerveChassis;
 import com.team5959.commands.SwerveDrive;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -100,7 +101,7 @@ public class RobotContainer {
   }
 
   private Command scoreReffCommandSequence(){
-    return Commands.sequence(getInOrOutPositionCommand(),getRunOutAlgaeCommand(),getInOrOutPositionCommand());
+    return Commands.sequence(getInOrOutPositionCommand(),getRunOutAlgaeCommand().withTimeout(2),getInOrOutPositionCommand());
   }
  
   //CONTROLLERS  
@@ -129,7 +130,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("algaeDown", getInOrOutPositionCommand());
     NamedCommands.registerCommand("getAlgae", getRunInAlgaeCommand().withTimeout(2));
     NamedCommands.registerCommand("algaeUp", getInOrOutPositionCommand());
-    NamedCommands.registerCommand("score",getInOrOutPositionCommand());
+    NamedCommands.registerCommand("score",scoreReffCommandSequence());
     
 
     swerveChassis = new SwerveChassis();
@@ -188,14 +189,15 @@ public class RobotContainer {
   }
   
   public Command getAutonomousCommand() {
-    
+    /*
     try{
-      PathPlannerPath choreoTraj = PathPlannerPath.fromChoreoTrajectory(autoChoose);
+      PathPlannerPath choreoTraj = PathPlannerPath.fromChoreoTrajectory("score reef");
       return AutoBuilder.followPath(choreoTraj);
     } catch (Exception e){
       DriverStation.reportError("Error loading path: " + e.getMessage(), e.getStackTrace());
       return Commands.none();
     }
+    */
     return autoCommandChooser.getSelected();
   }
 }

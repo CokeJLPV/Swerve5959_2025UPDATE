@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Driver Station 1"
+            "pathName": "score reef"
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 1.0
+            "name": "score"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Driver Station 1 Part 2"
+            "pathName": "leave reef"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "score"
           }
         }
       ]
@@ -27,5 +33,5 @@
   },
   "resetOdom": true,
   "folder": null,
-  "choreoAuto": false
+  "choreoAuto": true
 }
