@@ -1,0 +1,82 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.343,
+        "y": 5.28275
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.871562052293161,
+        "y": 5.497906395747326
+      },
+      "isLocked": false,
+      "linkedName": "Driver Station 1"
+    },
+    {
+      "anchor": {
+        "x": 4.411475409836065,
+        "y": 5.76921106557377
+      },
+      "prevControl": {
+        "x": 4.889388194507416,
+        "y": 5.5447148869191745
+      },
+      "nextControl": {
+        "x": 4.185197101325699,
+        "y": 5.875503713944614
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.817110655737705,
+        "y": 5.589395491803279
+      },
+      "prevControl": {
+        "x": 2.4750927519579564,
+        "y": 5.5045473568064605
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "score",
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "outAlgae"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 2.359,
+    "maxAcceleration": 11.772,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -1.3454966737129475
+  },
+  "reversed": false,
+  "folder": "Folder 1",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 59.42077312751102
+  },
+  "useDefaultConstraints": true
+}

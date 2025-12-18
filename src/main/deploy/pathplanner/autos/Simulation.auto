@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "circle"
+            "pathName": "Driver Station 1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "outCoral"
+            "name": "score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Driver Station 1 Part 2"
           }
         }
       ]

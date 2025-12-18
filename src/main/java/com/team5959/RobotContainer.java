@@ -99,6 +99,9 @@ public class RobotContainer {
     return Commands.sequence(miniArmSubsystem.runOnce(miniArmSubsystem::currentToTargetPosition), miniArmSubsystem.run(miniArmSubsystem::runPIDMiniArmTarget));
   }
 
+  private Command scoreReffCommandSequence(){
+    return Commands.sequence(getInOrOutPositionCommand(),getRunOutAlgaeCommand(),getInOrOutPositionCommand());
+  }
  
   //CONTROLLERS  
   private final PS4Controller control = new PS4Controller(ControllerConstants.kDriverControllerPort);
@@ -126,6 +129,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("algaeDown", getInOrOutPositionCommand());
     NamedCommands.registerCommand("getAlgae", getRunInAlgaeCommand().withTimeout(2));
     NamedCommands.registerCommand("algaeUp", getInOrOutPositionCommand());
+    NamedCommands.registerCommand("score",getInOrOutPositionCommand());
     
 
     swerveChassis = new SwerveChassis();
@@ -184,6 +188,7 @@ public class RobotContainer {
   }
   
   public Command getAutonomousCommand() {
+    //DriverStation1
     return autoCommandChooser.getSelected();
   }
 }
