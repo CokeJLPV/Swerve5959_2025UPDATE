@@ -108,6 +108,10 @@ public class RobotContainer {
     return Commands.sequence(runInCoralIntakeCommand().withTimeout(1.5));
   }
 
+  private Command waitToCoral(){
+    return intakeCoralSubsystem.run(intakeCoralSubsystem::runInCoralIntake).until(elevatorSubsystem::canRangeDetectsObject).andThen(runInCoralIntakeCommand().withTimeout(0.8));
+  }
+
   // Creacion de objetos de CONTROLES
   private final PS4Controller control = new PS4Controller(ControllerConstants.kDriverControllerPort);
   private final CommandPS4Controller CommandPS4Controller = new CommandPS4Controller(ControllerConstants.kDriverControllerPort);
@@ -129,7 +133,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("algaeDown", getInOrOutPositionCommand());
     NamedCommands.registerCommand("getAlgae", getRunInAlgaeCommand().withTimeout(2));
     NamedCommands.registerCommand("algaeUp", getInOrOutPositionCommand());
-    NamedCommands.registerCommand("score",scoreReffCommandSequence());
+    NamedCommands.registerCommand("score",runInCoralIntakeCommand().withTimeout(1.5));
+    NamedCommands.registerCommand("waitToCoral", waitToCoral());
     swerveChassis = new SwerveChassis();
     
     autoCommandChooser = AutoBuilder.buildAutoChooser();

@@ -25,19 +25,13 @@
         {
           "type": "named",
           "data": {
-            "name": "score"
+            "name": "waitToCoral"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "score2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "score"
           }
         }
       ]

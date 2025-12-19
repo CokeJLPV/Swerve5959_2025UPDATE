@@ -107,6 +107,10 @@ public class elevatorSubsystem extends SubsystemBase {
     }
   }
 
+  public boolean canRangeDetectsObject() {
+    return canRange.getIsDetected().getValue();
+  }
+
   public void CurrentToTargetPosition() {
     // Set target to current position
     targetPosition = elevatorEncoder.getPosition();
