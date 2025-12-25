@@ -207,6 +207,7 @@ public class RobotContainer {
     CommandPS4Controller.square().onTrue(getInOrOutPositionCommand()); //Square
     CommandPS4Controller.cross().onTrue(getInPerimeterPositionCommand()); //Cross
 
+
     CommandGenericController.button(5).whileTrue(elevatorSubsystem.run(elevatorSubsystem::elevatorUpManualMode)); //LB
     CommandGenericController.button(6).whileTrue(elevatorSubsystem.run(elevatorSubsystem::elevatorDownManualMode)); //RB
 

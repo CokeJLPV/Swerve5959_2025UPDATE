@@ -24,6 +24,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+//Vision
+import org.photonvision.EstimatedRobotPose;
+import java.util.List;
+import com.team5959.Vision;
+
 public class SwerveChassis extends SubsystemBase{
 
   private final PIDController headingPID = new PIDController(SwerveConstants.KP_AUTO_HOLDING,SwerveConstants.KI_AUTO_HOLDING, SwerveConstants.KD_AUTO_HOLDING); // TUNEAR
@@ -41,7 +46,9 @@ public class SwerveChassis extends SubsystemBase{
   private SwerveDrivePoseEstimator poseEstimator;
   private AHRS navx; 
 
-  Field2d field2d = new edu.wpi.first.wpilibj.smartdashboard.Field2d();  
+  private Vision vision;
+
+  Field2d field2d = new Field2d();  
 
   public SwerveChassis() {
 
@@ -84,9 +91,12 @@ public class SwerveChassis extends SubsystemBase{
       SwerveConstants.DRIVE_KINEMATICS, 
       getRotation2d(),
       getModulePositions(),
-      new Pose2d(0, 0, getRotation2d()));  
+      new Pose2d(0, 0, getRotation2d())
+    );  
 
-       // Load the RobotConfig from the GUI settings. You should probably
+    vision = new Vision();
+
+    // Load the RobotConfig from the GUI settings. You should probably
     // store this in your Constants file
     RobotConfig config = null;
     try{
@@ -319,6 +329,12 @@ public void publishTrajectory(String name, Trajectory trajectory) {
     odometer.update(getRotation2d(), getModulePositions());
     poseEstimator.update(getRotation2d(), getModulePositions());
 
+    List<EstimatedRobotPose> visionEstimates = vision.getEstimatedGlobalPoses();
+
+    for (EstimatedRobotPose estimate : visionEstimates){
+      poseEstimator.addVisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds);
+    }
+
     field2d.setRobotPose(odometer.getPoseMeters());
 
     SmartDashboard.putData("NAVX2D", navx);
@@ -360,6 +376,18 @@ private static double modifyAxis(double num) {
 num = Math.copySign(num * num, num);
 
 return num;
+}
+/**
+ * Este método corre automáticamente solo cuando estás simulando el robot.
+ */
+@Override
+public void simulationPeriodic() {
+    // Le decimos a PhotonVision dónde está el robot simulado en el campo.
+    // Esto permite que las cámaras simuladas "vean" los AprilTags desde esa posición.
+    // NOTA: Normalmente aquí se usaria 'poseEstimator.getEstimatedPosition()', 
+    // pero en simulación pura, a veces es mejor usar la pose física ideal si se tiene PhysicsSim.
+    // Por ahora, usar la odometría es suficiente para pruebas básicas.
+    vision.simulationPeriodic(poseEstimator.getEstimatedPosition());
 }
 
 }
