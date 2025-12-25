@@ -332,7 +332,10 @@ public void publishTrajectory(String name, Trajectory trajectory) {
     List<EstimatedRobotPose> visionEstimates = vision.getEstimatedGlobalPoses();
 
     for (EstimatedRobotPose estimate : visionEstimates){
-      poseEstimator.addVisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds);
+      //Calculamos la confianza dinámica antes de agregar la medición
+      var stdDevs = vision.getEstimationStdDevs(estimate);
+
+      poseEstimator.addVisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds, stdDevs);
     }
 
     field2d.setRobotPose(odometer.getPoseMeters());

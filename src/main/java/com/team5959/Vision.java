@@ -37,6 +37,12 @@ public class Vision {
     private PhotonCameraSim leftCameraSim;
     private PhotonCameraSim rightCameraSim;
 
+    // Constantes de Confianza (StdDevs)
+    // X, Y, Rotacion. (Rotacion infinita para confiar siempre en el Gyro)
+    
+    private static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+    private static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+
     private static final Transform3d LEFT_FRONT_ROBOT_TO_CAM = new Transform3d(
             new Translation3d(0.3, 0.3, 0.2),
             new Rotation3d(0, Units.degreesToRadians(22), Units.degreesToRadians(45)));
@@ -139,7 +145,7 @@ public class Vision {
      * La lógica es: A mayor distancia promedio de los tags, menor confianza (números más grandes).
      */
     public Matrix<N3, N1> getEstimationStdDevs(EstimatedRobotPose estimatedPose) {
-        var estStdDevs = VecBuilder.fill(0.5, 0.5, 9999999); // Default: confianza media en X/Y, nula en rotación
+        var estStdDevs = kSingleTagStdDevs; // Default: confianza media en X/Y, nula en rotación
         var targets = estimatedPose.targetsUsed;
         int numTags = 0;
         double avgDist = 0;
@@ -149,6 +155,7 @@ public class Vision {
             var tagPose = aprilTagFieldLayout.getTagPose(target.getFiducialId());
             if (tagPose.isEmpty()) continue;
             numTags++;
+            // Usamos la distancia desde la cámara al tag
             avgDist += target.getBestCameraToTarget().getTranslation().getNorm();
         }
 
@@ -159,13 +166,20 @@ public class Vision {
         // Si hay más de 1 tag, confiamos mucho (xyStdDev bajo).
         // Si hay 1 solo tag, la confianza empeora linealmente con la distancia.
         if (numTags > 1) {
-             estStdDevs = VecBuilder.fill(0.05, 0.05, 9999999); // Muy confiable en X/Y
-        } else {
-             // 1 tag: Aumentar error si está lejos
-             double xyStdDev = 0.05 + (Math.pow(avgDist, 2) / 2.0); // Factor cuadrático de distancia
-             estStdDevs = VecBuilder.fill(xyStdDev, xyStdDev, 9999999);
+            // Si vemos múltiples tags, usamos la base de confianza alta
+             estStdDevs = kMultiTagStdDevs
         }
 
+        // Si solo vemos 1 tag y está lejos (> 4m), lo ignoramos (confianza infinita = ignorar)
+        if (numTags == 1 && avgDist > 4) {
+            estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+        } else {
+            // Escalamos la confianza basada en la distancia.
+            // Factor: 1 + (distancia^2 / 30). Curva suave.
+            // Ejemplo: a 3m -> 1 + (9/30) = 1.3x de error.
+            estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+        }
+        
         return estStdDevs;
     }
 
