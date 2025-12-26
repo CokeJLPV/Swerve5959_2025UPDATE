@@ -1,10 +1,17 @@
 package com.team5959.subsystems;
 
+import java.util.List;
+
+//Vision
+import org.photonvision.EstimatedRobotPose;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
+import com.team5959.Constants.SwerveConstants;
+import com.team5959.Vision;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -14,20 +21,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-
-import com.team5959.Constants.SwerveConstants;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-//Vision
-import org.photonvision.EstimatedRobotPose;
-import java.util.List;
-import com.team5959.Vision;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveChassis extends SubsystemBase{
 
@@ -329,7 +328,13 @@ public void publishTrajectory(String name, Trajectory trajectory) {
     odometer.update(getRotation2d(), getModulePositions());
     poseEstimator.update(getRotation2d(), getModulePositions());
 
-    List<EstimatedRobotPose> visionEstimates = vision.getEstimatedGlobalPoses();
+    if (Math.abs(getRobotRelativeSpeeds().omegaRadiansPerSecond) > 3.5) {
+      // Actualizamos solo el field2d y salimos
+      field2d.setRobotPose(odometer.getPoseMeters());
+      return; 
+    }
+
+    List<EstimatedRobotPose> visionEstimates = vision.getEstimatedGlobalPoses(poseEstimator.getEstimatedPosition());
 
     for (EstimatedRobotPose estimate : visionEstimates){
       //Calculamos la confianza dinámica antes de agregar la medición

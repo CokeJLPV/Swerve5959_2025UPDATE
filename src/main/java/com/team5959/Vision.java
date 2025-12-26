@@ -1,18 +1,9 @@
 package com.team5959;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotBase;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -21,6 +12,21 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /** Add your docs here. */
 public class Vision {
@@ -39,9 +45,14 @@ public class Vision {
 
     // Constantes de Confianza (StdDevs)
     // X, Y, Rotacion. (Rotacion infinita para confiar siempre en el Gyro)
-    
     private static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
     private static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+
+    // Límites del campo (Sanity Check) - Margen de 0.5m fuera del campo permitido
+    private static final double FIELD_LENGTH_METERS = 16.54;
+    private static final double FIELD_WIDTH_METERS = 8.21;
+    // Límite de altura: El robot no debería reportar estar volando a más de 50cm
+    private static final double MAX_HEIGHT_ERROR_METERS = 0.5;
 
     private static final Transform3d LEFT_FRONT_ROBOT_TO_CAM = new Transform3d(
             new Translation3d(0.3, 0.3, 0.2),
@@ -78,9 +89,10 @@ public class Vision {
                 RIGHT_FRONT_ROBOT_TO_CAM);
 
         // Configuración extra: Usar MultiTag es lo más preciso.
-        // Si falla (ve 1 solo tag), usa la estrategia de fallback (Lowest Ambiguity).
-        leftPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-        rightPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+        // Explicación: Si falla Multi-Tag, usa el tag único que mejor coincida con 
+        // donde el giroscopio/encoders dicen que estamos. Evita saltos locos
+        leftPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
+        rightPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
 
         // --- INICIALIZACIÓN DE SIMULACIÓN ---
         // Esto solo se ejecuta si estamos simulando en la PC
@@ -117,27 +129,47 @@ public class Vision {
      * Obtiene las estimaciones de pose de todas las cámaras de AprilTags visibles.
      * @return Lista de estimaciones para inyectar en el SwerveDrivePoseEstimator.
      */
-    public List<EstimatedRobotPose> getEstimatedGlobalPoses() {
+    public List<EstimatedRobotPose> getEstimatedGlobalPoses(Pose2d prevEstimatedRobotPose) {
         List<EstimatedRobotPose> estimates = new ArrayList<>();
-        
         if (aprilTagFieldLayout == null) return estimates; // Seguridad por si falla carga del mapa
+
+        // "Sembrar" (Seeding) la posición de referencia ayuda a resolver ambigüedades
+        leftPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+        rightPoseEstimator.setReferencePose(prevEstimatedRobotPose);
 
         // 1. Procesar Cámara Izquierda
         for(PhotonPipelineResult leftResult : leftFrontCamera.getAllUnreadResults()) {
-        // Solo intentamos actualizar si el resultado tiene datos válidos
-        if (leftResult.hasTargets()) {
-             Optional<EstimatedRobotPose> leftEst = leftPoseEstimator.update(leftResult);
-             leftEst.ifPresent(estimates::add);
+            // Solo intentamos actualizar si el resultado tiene datos válidos
+            if (leftResult.hasTargets()) {
+                Optional<EstimatedRobotPose> leftEst = leftPoseEstimator.update(leftResult);
+                if (leftEst.isPresent() && isPoseValid(leftEst.get().estimatedPose)) {
+                estimates.add(leftEst.get());
+                }
             }
         }
         // 2. Procesar Cámara Derecha
         for (PhotonPipelineResult rightResult : rightFrontCamera.getAllUnreadResults()) {
-        if (rightResult.hasTargets()) {
+            if (rightResult.hasTargets()) {
             Optional<EstimatedRobotPose> rightEst = rightPoseEstimator.update(rightResult);
-            rightEst.ifPresent(estimates::add);
+                if (rightEst.isPresent() && isPoseValid(rightEst.get().estimatedPose)) {
+                    estimates.add(rightEst.get());
+                    
+                }
             }
         }
         return estimates;
+    }
+
+    /**
+     * Filtro de Sanidad: Verifica que la pose sea físicamente posible.
+     */
+    private boolean isPoseValid(Pose3d pose) {
+        // 1. Verificar si está dentro de los límites del campo (con un margen de error)
+        if (pose.getX() < -0.5 || pose.getX() > FIELD_LENGTH_METERS + 0.5) return false;
+        if (pose.getY() < -0.5 || pose.getY() > FIELD_WIDTH_METERS + 0.5) return false;
+
+        if (Math.abs(pose.getZ()) > MAX_HEIGHT_ERROR_METERS) return false;
+        return true;
     }
 
     /**
@@ -167,7 +199,7 @@ public class Vision {
         // Si hay 1 solo tag, la confianza empeora linealmente con la distancia.
         if (numTags > 1) {
             // Si vemos múltiples tags, usamos la base de confianza alta
-             estStdDevs = kMultiTagStdDevs
+             estStdDevs = kMultiTagStdDevs;
         }
 
         // Si solo vemos 1 tag y está lejos (> 4m), lo ignoramos (confianza infinita = ignorar)
