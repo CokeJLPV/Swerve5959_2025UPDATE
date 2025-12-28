@@ -334,7 +334,7 @@ public void publishTrajectory(String name, Trajectory trajectory) {
       return; 
     }
 
-    List<EstimatedRobotPose> visionEstimates = vision.getEstimatedGlobalPoses(poseEstimator.getEstimatedPosition());
+    List<EstimatedRobotPose> visionEstimates = vision.getLatestEstimates(poseEstimator.getEstimatedPosition());
 
     for (EstimatedRobotPose estimate : visionEstimates){
       //Calculamos la confianza dinámica antes de agregar la medición
